@@ -18,7 +18,7 @@ public class ClienteServiceImpl implements ClienteService {
     private ClienteRepository clienteRepository;
 
     @Override
-    public ClienteResponse crear(ClienteSaveRequest request) {
+    public ClienteResponse save(ClienteSaveRequest request) {
         Cliente cliente = new Cliente();
         cliente.setNombre(request.nombre());
         cliente.setDui(request.dui());
@@ -33,7 +33,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public ClienteResponse actualizar(ClienteUpdateRequest request) {
+    public ClienteResponse update(ClienteUpdateRequest request) {
         Cliente cliente = clienteRepository.findById(request.id())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
@@ -49,19 +49,19 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         clienteRepository.deleteById(id);
     }
 
     @Override
-    public ClienteResponse obtenerPorId(Long id) {
+    public ClienteResponse findById(Long id) {
         return clienteRepository.findById(id)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
     }
 
     @Override
-    public List<ClienteListResponse> listarTodos() {
+    public List<ClienteListResponse> findAll() {
         return clienteRepository.findAll().stream()
                 .map(c -> new ClienteListResponse(c.getId(), c.getNombre(), c.getEmpresa(), c.getTelefono()))
                 .toList();
