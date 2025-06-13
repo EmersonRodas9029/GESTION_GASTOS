@@ -23,7 +23,7 @@ public class LogServiceImpl implements LogService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public void registrar(LogSaveRequest request) {
+    public LogResponse save(LogSaveRequest request) {
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -31,17 +31,40 @@ public class LogServiceImpl implements LogService {
         log.setAccion(request.accion());
         log.setUsuario(usuario);
 
-        logRepository.save(log);
+        Log guardado = logRepository.save(log);
+        return mapToResponse(guardado);
     }
 
     @Override
-    public List<LogListResponse> listarTodos() {
+    public void delete(Long id) {
+        logRepository.deleteById(id);
+    }
+
+    @Override
+    public LogResponse findById(Long id) {
+        return logRepository.findById(id)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("Log no encontrado"));
+    }
+
+    @Override
+    public List<LogListResponse> findAll() {
         return logRepository.findAll().stream()
-                .map(l -> new LogListResponse(
-                        l.getId(),
-                        l.getAccion(),
-                        l.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                        l.getUsuario().getUsername()
-                )).toList();
+                .map(log -> new LogListResponse(
+                        log.getId(),
+                        log.getAccion(),
+                        log.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        log.getUsuario().getUsername()
+                ))
+                .toList();
+    }
+
+    private LogResponse mapToResponse(Log log) {
+        return new LogResponse(
+                log.getId(),
+                log.getAccion(),
+                log.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                log.getUsuario().getId()
+        );
     }
 }

@@ -22,7 +22,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UsuarioResponse crear(UsuarioSaveRequest request) {
+    public UsuarioResponse save(UsuarioSaveRequest request) {
         Usuario usuario = new Usuario();
         usuario.setUsername(request.username());
         usuario.setPassword(passwordEncoder.encode(request.password()));
@@ -41,7 +41,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public UsuarioResponse actualizar(UsuarioUpdateRequest request) {
+    public UsuarioResponse update(UsuarioUpdateRequest request) {
         Usuario usuario = usuarioRepository.findById(request.id())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -64,12 +64,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         usuarioRepository.deleteById(id);
     }
 
     @Override
-    public UsuarioResponse obtenerPorId(Long id) {
+    public UsuarioResponse findById(Long id) {
         Usuario u = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return new UsuarioResponse(
@@ -79,7 +79,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public List<UsuarioListResponse> listarTodos() {
+    public List<UsuarioListResponse> findAll() {
         return usuarioRepository.findAll()
                 .stream()
                 .map(u -> new UsuarioListResponse(u.getId(), u.getUsername(), u.getRol(), u.getActivo()))

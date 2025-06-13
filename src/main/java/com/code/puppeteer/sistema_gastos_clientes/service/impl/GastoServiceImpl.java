@@ -12,6 +12,7 @@ import com.code.puppeteer.sistema_gastos_clientes.service.GastoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -27,7 +28,7 @@ public class GastoServiceImpl implements GastoService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public GastoResponse crear(GastoSaveRequest request) {
+    public GastoResponse save(GastoSaveRequest request) {
         Cliente cliente = clienteRepository.findById(request.clienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
@@ -35,7 +36,7 @@ public class GastoServiceImpl implements GastoService {
 
         Gasto gasto = new Gasto();
         gasto.setFecha(request.fecha());
-        gasto.setMonto(request.monto());
+        gasto.setMonto(BigDecimal.valueOf(request.monto())); // ✅ conversión correcta
         gasto.setDescripcion(request.descripcion());
         gasto.setCategoria(request.categoria());
         gasto.setCliente(cliente);
@@ -47,7 +48,7 @@ public class GastoServiceImpl implements GastoService {
     }
 
     @Override
-    public GastoResponse actualizar(GastoUpdateRequest request) {
+    public GastoResponse update(GastoUpdateRequest request) {
         Gasto gasto = gastoRepository.findById(request.id())
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
 
@@ -57,7 +58,7 @@ public class GastoServiceImpl implements GastoService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         gasto.setFecha(request.fecha());
-        gasto.setMonto(request.monto());
+        gasto.setMonto(BigDecimal.valueOf(request.monto())); // ✅ conversión correcta
         gasto.setDescripcion(request.descripcion());
         gasto.setCategoria(request.categoria());
         gasto.setCliente(cliente);
@@ -67,30 +68,39 @@ public class GastoServiceImpl implements GastoService {
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         gastoRepository.deleteById(id);
     }
 
     @Override
-    public GastoResponse obtenerPorId(Long id) {
+    public GastoResponse findById(Long id) {
         return gastoRepository.findById(id)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
     }
 
     @Override
-    public List<GastoListResponse> listarTodos() {
+    public List<GastoListResponse> findAll() {
         return gastoRepository.findAll().stream()
                 .map(g -> new GastoListResponse(
-                        g.getId(), g.getFecha(), g.getMonto(), g.getCategoria(),
-                        g.getCliente().getNombre()))
+                        g.getId(),
+                        g.getFecha(),
+                        g.getMonto().doubleValue(), // ✅ conversión correcta
+                        g.getCategoria(),
+                        g.getCliente().getNombre()
+                ))
                 .toList();
     }
 
     private GastoResponse mapToResponse(Gasto g) {
         return new GastoResponse(
-                g.getId(), g.getFecha(), g.getMonto(), g.getDescripcion(),
-                g.getCategoria(), g.getCliente().getId(), g.getUsuario().getId()
+                g.getId(),
+                g.getFecha(),
+                g.getMonto().doubleValue(), // ✅ conversión correcta
+                g.getDescripcion(),
+                g.getCategoria(),
+                g.getCliente().getId(),
+                g.getUsuario().getId()
         );
     }
 }
