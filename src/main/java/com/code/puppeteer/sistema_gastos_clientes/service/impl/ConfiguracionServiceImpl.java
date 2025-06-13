@@ -15,7 +15,7 @@ public class ConfiguracionServiceImpl implements ConfiguracionService {
     private ConfiguracionRepository configuracionRepository;
 
     @Override
-    public ConfiguracionResponse guardar(ConfiguracionSaveRequest request) {
+    public ConfiguracionResponse save(ConfiguracionSaveRequest request) {
         Configuracion config = new Configuracion();
         config.setId(request.id());
         config.setNombreEstudio(request.nombreEstudio());
@@ -25,7 +25,7 @@ public class ConfiguracionServiceImpl implements ConfiguracionService {
     }
 
     @Override
-    public ConfiguracionResponse actualizar(ConfiguracionUpdateRequest request) {
+    public ConfiguracionResponse update(ConfiguracionUpdateRequest request) {
         Configuracion config = configuracionRepository.findById(request.id())
                 .orElseThrow(() -> new RuntimeException("Configuración no encontrada"));
 
@@ -36,7 +36,7 @@ public class ConfiguracionServiceImpl implements ConfiguracionService {
     }
 
     @Override
-    public ConfiguracionResponse obtener(Long id) {
+    public ConfiguracionResponse findById(Long id) {
         return configuracionRepository.findById(id)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Configuración no encontrada"));
